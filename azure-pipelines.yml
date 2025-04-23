@@ -1,0 +1,17 @@
+name: $(BuildID)
+
+trigger:
+    branches:
+        include:
+            - none
+    paths:
+        exclude:
+            - "src/API/*"
+            - "src/Frontend/*"
+
+pool:
+    vmImage: "ubuntu-latest"
+
+steps:
+    - script: |
+          echo "Hello from '/' root folder."

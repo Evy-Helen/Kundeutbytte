@@ -1,0 +1,42 @@
+# Please refer https://aka.ms/HTTPSinContainer on how to setup an https developer certificate for your ASP.NET Core service.
+
+version: "3.4"
+
+services:
+    customeryieldapi:
+        image: customeryieldapi
+        depends_on:
+            SqlServer:
+                condition: service_healthy
+        build:
+            context: .
+            dockerfile: src/API/Dockerfile
+            args:
+                - configuration=Debug
+        ports:
+            - 5102:5000
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Development
+            - ConnectionStrings:yeldInfoDB=Server=MS_SQL_Server,1433;Database=customerYield;User Id=sa;Password=etRandom_pa55ord;Trusted_Connection=True;Encrypt=True;TrustServerCertificate=True;Integrated Security=false;
+        volumes:
+            - ~/.vsdbg:/remote_debugger:rw
+    SqlServer:
+        container_name: MS_SQL_Server
+        healthcheck:
+            test:
+                [
+                    "CMD",
+                    "/opt/mssql-tools/bin/sqlcmd",
+                    "-Usa",
+                    "-PetRandom_pa55ord",
+                    "-Q",
+                    "select 1",
+                ]
+        image: mcr.microsoft.com/mssql/server:latest
+        ports:
+            - 1433:1433
+        environment:
+            - ACCEPT_EULA=Y
+            - MSSQL_SA_PASSWORD=etRandom_pa55ord
+        volumes:
+            - ~/.data:/var/opt/mssql/data
